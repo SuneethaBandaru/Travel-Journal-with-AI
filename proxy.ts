@@ -7,7 +7,9 @@ function isProtected(path: string) {
     path.startsWith("/posts/new") ||
     path.endsWith("/edit") ||
     path.startsWith("/my-posts") ||
-    path.startsWith("/settings")
+    path.startsWith("/settings") ||
+    path.startsWith("/planner") ||
+    path.startsWith("/moderation")
   );
 }
 

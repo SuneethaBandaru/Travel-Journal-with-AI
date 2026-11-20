@@ -48,7 +48,7 @@ export default async function PostPage({
   const [commentsRes, likesRes, myLikeRes] = await Promise.all([
     supabase
       .from('comments')
-      .select('id, content, created_at, user_id, parent_comment_id')
+      .select('*')
       .eq('post_id', post.id)
       .order('created_at', { ascending: true }),
     supabase.from('post_likes').select('*', { count: 'exact', head: true }).eq('post_id', post.id),
@@ -58,6 +58,7 @@ export default async function PostPage({
   ])
 
   const comments = (commentsRes.data ?? []) as CommentRow[]
+  const visibleCount = comments.filter((c) => c.moderation_status !== 'hidden').length
   const likeCount = likesRes.count ?? 0
   const liked = Boolean(myLikeRes.data)
 
@@ -129,7 +130,7 @@ export default async function PostPage({
               <p className="mt-2 whitespace-pre-line text-sm text-[#2B2B2B]">{post.content}</p>
 
               <h2 className="mb-3 mt-6 text-xs font-semibold uppercase tracking-wide text-[#8A8580]">
-                Comments ({comments.length})
+                Comments ({visibleCount})
               </h2>
               {comments.length === 0 ? (
                 <p className="text-sm text-[#8A8580]">No comments yet. Start the conversation.</p>

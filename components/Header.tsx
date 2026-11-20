@@ -38,6 +38,9 @@ export default async function Header({ q = '' }: { q?: string }) {
 
       {claims ? (
         <div className="flex items-center gap-4">
+          <Link href="/planner" className="text-sm font-semibold text-[#2D6A6A]">
+            ✨ Trip Planner
+          </Link>
           <Link
             href="/posts/new"
             className="rounded-full bg-[#E8914B] px-4 py-1.5 text-sm font-semibold text-white"
@@ -56,6 +59,9 @@ export default async function Header({ q = '' }: { q?: string }) {
               </Link>
               <Link href="/settings" className="block px-4 py-2 text-[#2B2B2B] hover:bg-[#FAF7F2]">
                 Settings
+              </Link>
+              <Link href="/moderation" className="block px-4 py-2 text-[#2B2B2B] hover:bg-[#FAF7F2]">
+                🛡️ AI moderation log
               </Link>
               <form action={logout}>
                 <button

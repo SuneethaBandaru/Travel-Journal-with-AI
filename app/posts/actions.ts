@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { moderateComment } from '@/lib/ai/moderation'
 
 async function requireUser() {
   const supabase = await createClient()
@@ -14,7 +15,7 @@ async function requireUser() {
 
 const text = (fd: FormData, key: string) => String(fd.get(key) ?? '').trim()
 
-export type CommentState = { error: string | null }
+export type CommentState = { error: string | null; notice?: string | null }
 
 export async function addComment(formData: FormData): Promise<CommentState> {
   const { supabase, userId } = await requireUser()
@@ -25,12 +26,36 @@ export async function addComment(formData: FormData): Promise<CommentState> {
   if (!content) return { error: 'Write a comment first.' }
   if (!postId) return { error: 'Could not find the post.' }
 
-  const { error } = await supabase
-    .from('comments')
-    .insert({ post_id: postId, user_id: userId, content, parent_comment_id: parentId })
+  // AI moderation team checks every comment before it is published
+  const { data: post } = await supabase.from('posts').select('title').eq('id', postId).maybeSingle()
+  const decision = await moderateComment(content, post?.title ?? '')
+
+  const base = { post_id: postId, user_id: userId, content, parent_comment_id: parentId }
+  let { error } = await supabase.from('comments').insert({
+    ...base,
+    moderation_status: decision.status,
+    moderation_category: decision.category,
+    moderation_reason: decision.reason,
+    moderated_by: decision.decidedBy,
+  })
+
+  // The moderation columns don't exist yet (supabase/ai-moderation.sql not run)
+  if (error && /moderat/i.test(error.message)) {
+    if (decision.status === 'hidden') {
+      return { error: `Your comment was not published: ${decision.reason}` }
+    }
+    ;({ error } = await supabase.from('comments').insert(base))
+  }
   if (error) return { error: `Could not post your comment: ${error.message}` }
 
   revalidatePath(`/posts/${slug}`)
+  revalidatePath('/moderation')
+  if (decision.status === 'hidden') {
+    return {
+      error: null,
+      notice: `🛡️ Your comment was hidden by our AI moderator (${decision.category.replace('_', ' ')}): ${decision.reason}`,
+    }
+  }
   return { error: null }
 }
 

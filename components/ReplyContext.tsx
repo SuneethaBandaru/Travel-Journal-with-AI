@@ -58,7 +58,7 @@ export function CommentForm({ postId, slug }: { postId: string; slug: string }) 
       if (!result.error) setTarget(null)
       return result
     },
-    { error: null }
+    { error: null, notice: null }
   )
 
   
@@ -117,6 +117,7 @@ export function CommentForm({ postId, slug }: { postId: string; slug: string }) 
         </button>
       </form>
       {state.error && <p className="mt-2 text-xs text-red-700">{state.error}</p>}
+      {state.notice && <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900">{state.notice}</p>}
 
       {pickerOpen && (
         <div className="absolute bottom-full right-0 mb-2 grid grid-cols-8 gap-1 rounded-lg border border-[#D3D1C7] bg-white p-2 shadow-lg">

@@ -10,6 +10,9 @@ export type CommentRow = {
   created_at: string
   user_id: string
   parent_comment_id: string | null
+  moderation_status?: 'approved' | 'hidden' | null
+  moderation_category?: string | null
+  moderation_reason?: string | null
 }
 
 type Props = {
@@ -42,15 +45,43 @@ export default function CommentThread({
         const author = authors[c.user_id]
         const name = fullName(author)
         const canDelete = userId === c.user_id || userId === postOwnerId
+        const hidden = c.moderation_status === 'hidden'
+        const hasReplies = (byParent[c.id] ?? []).length > 0
+
+        // Comments hidden by the AI moderator are only visible to their author and the post owner
+        if (hidden && !canDelete) {
+          if (!hasReplies) return null
+          return (
+            <li key={c.id}>
+              <p className="text-xs italic text-[#8A8580]">🛡️ This comment was hidden by our AI moderator.</p>
+              <CommentThread
+                parentId={c.id}
+                byParent={byParent}
+                authors={authors}
+                userId={userId}
+                postId={postId}
+                postOwnerId={postOwnerId}
+                slug={slug}
+                depth={depth + 1}
+              />
+            </li>
+          )
+        }
 
         return (
           <li key={c.id}>
             <div className="flex gap-2">
               <Avatar url={author?.avatar_url} name={name} size={28} />
               <div className="min-w-0 flex-1">
-                <p className="wrap-break-word text-sm text-[#2B2B2B]">
+                <p className={`wrap-break-word text-sm ${hidden ? 'text-[#8A8580] line-through' : 'text-[#2B2B2B]'}`}>
                   <span className="font-semibold">{name}</span> {c.content}
                 </p>
+                {hidden && (
+                  <p className="mt-1 rounded bg-amber-50 px-2 py-1 text-xs text-amber-900">
+                    🛡️ Hidden by AI moderator ({c.moderation_category?.replace('_', ' ')}): {c.moderation_reason}. Only you
+                    {userId === postOwnerId && userId !== c.user_id ? ' (post owner)' : ''} can see this.
+                  </p>
+                )}
                 <div className="mt-1 flex items-center gap-3 text-xs text-[#8A8580]">
                   <span>{timeAgo(c.created_at)}</span>
                   {userId && <ReplyButton id={c.id} name={name} />}

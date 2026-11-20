@@ -52,6 +52,9 @@ export default async function Home({
               <a href="#trips" className="rounded-full border border-[#2B2B2B] px-6 py-2.5 text-sm font-semibold text-[#2B2B2B]">
                 Browse trips
               </a>
+              <Link href="/planner" className="rounded-full bg-[#2D6A6A] px-6 py-2.5 text-sm font-semibold text-white">
+                ✨ Plan a trip with AI
+              </Link>
             </div>
           </div>
         </section>
