@@ -137,3 +137,7 @@ On Vercel, add the same three environment variables.
 - Let users save and share generated trip plans
 - Moderate post text and images too, not only comments
 - An admin view where humans can overturn moderation decisions (and use them as examples for the agents)
+
+Github repo link : https://github.com/SuneethaBandaru/Travel-Journal-with-AI
+
+Vercel live link : https://travel-journal-with-ai.vercel.app/
