@@ -9,11 +9,13 @@ export interface ModeratorVerdict {
 }
 
 const POLICY = `TRAVEL JOURNAL COMMUNITY RULES
-Allowed: opinions, questions, disagreement, criticism of a trip or place, mild humour, emojis, any language.
+Allowed: opinions, questions, disagreement, constructive criticism of a trip or place (with a reason or detail), mild humour, emojis, any language.
 Not allowed:
 - spam: ads, promo codes, repeated links, "follow me", SEO junk
 - scam: fake travel deals, crypto/investment offers, phishing, "DM me for cheap tickets"
-- harassment: insults or threats aimed at a person, bullying
+- harassment: insults or threats aimed at a person, bullying. A comment on someone's post is addressed to the author,
+  so short insults with no constructive content ("stupid", "idiot", "trash", "you suck", "loser") count as harassment
+  even when no name is mentioned
 - hate: attacks on people for nationality, ethnicity, religion, gender, sexuality, disability
 - personal_data: sharing someone's phone number, home address, passport/ID or email
 - off_topic: completely unrelated to the post AND disruptive (being slightly off topic is fine)`;
@@ -48,7 +50,8 @@ export async function reviewerAgent(
   const system = `You are the senior Reviewer Agent for Travel Journal's moderation team.
 The first Moderator flagged a comment as borderline. Make the FINAL decision.
 Hiding a legitimate comment hurts free discussion; letting real abuse through hurts the community. Weigh both.
-When in doubt about plain criticism or rudeness that is not aimed at a person, approve.
+Criticism that gives a reason or detail ("boring photos, the story is too short") should be approved.
+A bare insult with no real content ("stupid", "trash", "idiot") is harassment toward the post author and should be hidden.
 
 ${POLICY}
 
